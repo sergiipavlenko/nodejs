@@ -1,0 +1,31 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: react-node-postgres
+  region: us-east-1
+  version: "1.33"
+
+vpc:
+  id: vpc-0ebb6510aab90f7d9              # ← замени на свой VPC ID
+  subnets:
+    public:
+      us-east-1d:
+        id: subnet-047f7c8d7eea2bf10              # ← замени на реальные subnet ID
+      us-east-1a:
+        id: subnet-0ac689d49164e4d65
+      us-east-1c:
+        id: subnet-0202fe074303b585c
+    private:
+      us-east-1b:
+        id: subnet-04befb1f46ef5df37
+      us-east-1f:
+        id: subnet-0b4cbc96186310796
+
+
+managedNodeGroups:
+  - name: linux-nodes
+    instanceType: t3.micro
+    desiredCapacity: 7
+    minSize: 7
+    maxSize: 10

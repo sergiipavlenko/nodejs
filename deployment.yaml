@@ -1,0 +1,103 @@
+# ---------- Client Deployment ----------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+        - name: client
+          image: 916863632898.dkr.ecr.us-east-1.amazonaws.com/client:latest
+          ports:
+            - containerPort: 4173
+
+---
+# ---------- Client Service ----------
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-service
+spec:
+  selector:
+    app: client
+  ports:
+    - port: 80
+      targetPort: 4173
+  type: ClusterIP
+
+---
+# ---------- Server Deployment ----------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - name: server
+          image: 916863632898.dkr.ecr.us-east-1.amazonaws.com/server:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PORT
+              value: "8000"
+            - name: DATABASE_URL
+              value: "postgresql://john_doe:john.doe@docker-test-db.cu7ekusei0a2.us-east-1.rds.amazonaws.com:5432/docker_test_db?schema=public"
+
+---
+# ---------- Server Service ----------
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-service
+spec:
+  selector:
+    app: server
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP
+
+---
+# ---------- Ingress ----------
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: server-service
+                port:
+                  number: 80
+          - path: /()(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: client-service
+                port:
+                  number: 80

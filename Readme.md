@@ -153,3 +153,31 @@ client:
 Note: *The commands for `client` are very similar to the already explained above for `server` and `postgres`*
 
 This tutorial provides a basic understanding of using Docker Compose to manage a full-stack application. Explore the code and docker-compose.yml file for further details.
+
+**Useful commands**
+
+aws ecr get-login-password | docker login --username AWS --password-stdin 916863632898.dkr.ecr.us-east-1.amazonaws.com
+
+eksctl create cluster -f eks-cluster-config.yaml
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml <br>
+kubectl get pods -n ingress-nginx <br>
+kubectl get service ingress-nginx-controller -n ingress-nginx <br>
+
+kubectl apply -f db-credentials.yaml <br>
+kubectl get secret db-credentials <br>
+kubectl apply -f prisma-migrate-job.yaml
+
+kubectl delete job prisma-migrate
+
+kubectl apply -f deployment.yaml
+
+###
+
+docker build -t server ./server <br>
+docker tag server:latest 916863632898.dkr.ecr.us-east-1.amazonaws.com/server <br>
+docker push 916863632898.dkr.ecr.us-east-1.amazonaws.com/server <br>
+
+###
+
+eksctl delete cluster --name react-node-postgres-cluster

@@ -5,9 +5,10 @@ import "./index.css";
 const UserDetail = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
+  const prefix = import.meta.env.VITE_SERVER_URL || 'api';
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_SERVER_URL}/user/${id}`)
+    fetch(`/${prefix}/user/${id}`)
       .then((res) => res.json())
       .then((json) => {
         setUser(json.data);

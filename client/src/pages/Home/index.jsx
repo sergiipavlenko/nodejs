@@ -10,10 +10,11 @@ const Home = () => {
     total: 0,
   });
   const navigate = useNavigate();
+  const prefix = import.meta.env.VITE_SERVER_URL || 'api';
 
   useEffect(() => {
     fetch(
-      `${import.meta.env.VITE_SERVER_URL}/users/all?page=${
+      `${prefix}/users/all?page=${
         pagination.page
       }&limit=${pagination.limit}`
     )
