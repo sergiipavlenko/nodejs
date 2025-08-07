@@ -20,7 +20,7 @@ services:
         container_name: server
         build:
             context: ./server
-            dockerfile: server/Dockerfile.local
+            dockerfile: Dockerfile.local
         ports:
             - "7999:8000"
         command: bash -c "npx prisma migrate reset --force && npm start"
@@ -34,7 +34,7 @@ services:
         container_name: client
         build:
             context: ./client
-            dockerfile: client/Dockerfile.local
+            dockerfile: Dockerfile.local
         command: bash -c "npm run preview"
         ports:
             - "4172:4173"

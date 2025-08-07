@@ -5,10 +5,16 @@ import "./index.css";
 const UserDetail = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
-  const prefix = import.meta.env.VITE_SERVER_URL || 'api';
+  const prefix = import.meta.env.VITE_SERVER_URL || '/api';
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`/${prefix}/user/${id}`)
+    fetch(`${prefix}/user/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    })
       .then((res) => res.json())
       .then((json) => {
         setUser(json.data);

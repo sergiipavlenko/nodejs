@@ -1,14 +1,43 @@
 const express = require("express");
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const SECRET = 'your-secret'; // Лучше хранить в .env
 const app = express();
 const router = express.Router();
 const cors = require("cors");
 const dotenv = require("dotenv");
 const HTTP_STATUS = require("./constants/httpStatus");
 const prisma = require("./config/database");
+const authMiddleware = require('./authMiddleware');
 dotenv.config();
 app.use(cors());
+app.use(express.json());
 
-router.get("/users/all", async (req, res) => {
+const users = []; // Временно. Замените на таблицу пользователей в БД.
+
+router.post('/register', async (req, res) => {
+  console.log('req.json', JSON.stringify(req.body, null, 2));
+  const { username, password } = req.body || {};
+  const hashed = await bcrypt.hash(password, 10);
+  users.push({ username, password: hashed });
+  res.status(201).send({ message: 'User registered' });
+});
+
+router.post('/login', async (req, res) => {
+  const { username, password } = req.body || {};
+  const user = users.find(u => u.username === username);
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  const token = jwt.sign({ username }, SECRET, { expiresIn: '1h' });
+  res.json({ token });
+});
+
+router.get('/me', authMiddleware, (req, res) => {
+  res.json({ user: req.user });
+});
+
+router.get("/users/all", authMiddleware, async (req, res) => {
     try {
         console.log(`${new Date().toISOString()} - All users request hit!`);
         let { page, limit } = req.query;
@@ -57,7 +86,7 @@ router.get("/users/all", async (req, res) => {
     }
 });
 
-router.get(`/user/:id`, async (req, res) => {
+router.get(`/user/:id`, authMiddleware, async (req, res) => {
     try {
         console.log(`${new Date().toISOString()} - Single user request hit!`);
         const { id } = req.params;

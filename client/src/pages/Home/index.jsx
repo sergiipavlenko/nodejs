@@ -11,12 +11,18 @@ const Home = () => {
   });
   const navigate = useNavigate();
   const prefix = import.meta.env.VITE_SERVER_URL || 'api';
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetch(
       `${prefix}/users/all?page=${
         pagination.page
-      }&limit=${pagination.limit}`
+      }&limit=${pagination.limit}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      }
     )
       .then((res) => res.json())
       .then((json) => {
